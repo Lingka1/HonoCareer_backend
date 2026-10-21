@@ -1,1 +1,8 @@
-# 大模型客户端统一接口
+"""Provider protocol used by orchestration; injectable for integration tests."""
+from typing import AsyncIterator, Protocol
+
+class Provider(Protocol):
+    name: str
+    async def stream(self,messages:list[dict],context:dict) -> AsyncIterator[str]: ...
+    async def score(self,context:dict) -> dict: ...
+    async def close(self) -> None: ...

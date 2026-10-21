@@ -1,124 +1,80 @@
-# HonoCareer 后端
+# HonoCareer 面试后端
 
-AI 面试与答辩模拟系统的后端框架，负责用户数据、简历与答辩材料、模拟会话、Agent 流程、消息记录和评分报告。
+基于 FastAPI、SQLite 和 DeepSeek 的面试模拟后端。已实现求职、志愿者、社团三场景的完整文字面试：画像与已确认简历上下文、六阶段推进、动态追问、真实题库检索、持久化 SSE、四维评分及证据、历史、弱项与可控长期记忆。
 
-当前版本只搭建项目结构，具体业务逻辑和接口实现逐步补充。
+附带响应式中文 Web 联调界面。ArkUI-X / ArkTS 原生客户端继续使用独立 HonoCareer_frontend 仓库；答辩模块保留原目录占位，未混入面试实现。
 
-## 技术方向
+## 快速启动
 
-- Web 框架：FastAPI
-- 开发语言：Python
-- 数据库：SQLite 起步，后续可切换其他关系型数据库
-- 大模型：通过 `app/llm/` 统一适配，当前预留 DeepSeek 实现
-- Agent：状态机 + 工具调用 + 大模型编排
-- 文件解析：简历和答辩材料由后端解析器处理
-- 语音：由鸿蒙前端负责 ASR/TTS，后端只接收和处理文本
+使用 Python 3.12：
 
-## 目录结构
-
-```text
-backend/
-├── app/
-│   ├── main.py                         # FastAPI 应用入口
-│   ├── config.py                       # 应用配置
-│   ├── api/                            # HTTP 接口层
-│   │   ├── auth.py                     # 登录、刷新令牌、退出
-│   │   ├── users.py                    # 用户信息
-│   │   ├── profiles.py                 # 用户画像和岗位匹配
-│   │   ├── resumes.py                  # 简历管理和解析
-│   │   ├── defense_materials.py        # 答辩材料管理和解析
-│   │   ├── sessions.py                 # 面试/答辩会话
-│   │   ├── messages.py                 # 消息和流式事件
-│   │   ├── reports.py                  # 评分报告
-│   │   ├── weak_points.py               # 薄弱点
-│   │   └── memories.py                 # 用户记忆
-│   ├── services/                       # 业务逻辑层
-│   ├── agent/                          # Agent 编排和工具
-│   │   └── tools/                      # 题库、岗位、材料、评分工具
-│   ├── llm/                            # 大模型统一适配层
-│   ├── parsers/                        # 文件内容解析
-│   └── db/                             # 数据库连接和模型
-├── tests/                              # 自动化测试
-├── docs/                               # 中文开发文档和接口文档
-├── requirements.txt                    # Python 依赖
-└── .env.example                        # 环境变量示例
-```
-
-## 分层约定
-
-```text
-请求 → api → services → agent/llm/db
-                         ├── agent：流程判断、上下文组织、工具调用
-                         ├── llm：统一调用 DeepSeek 等模型
-                         └── db：数据读写
-```
-
-- `api/` 只负责接收参数、鉴权入口、调用服务和返回结果。
-- `services/` 放具体业务逻辑，不把复杂逻辑堆在接口文件里。
-- `agent/` 负责面试和答辩阶段流转，例如自我介绍、追问、情景题、总结评价。
-- `llm/` 屏蔽不同大模型供应商的调用差异，业务代码不直接依赖具体 SDK。
-- `parsers/` 负责把简历、答辩材料转换为可供业务和 Agent 使用的结构化内容。
-- `db/` 负责数据库连接、会话和模型定义。
-
-## 主要业务流程
-
-### 面试模拟
-
-1. 创建面试会话。
-2. 加载用户画像、简历和岗位信息。
-3. Agent 按状态机推进面试阶段。
-4. 保存用户回答和系统追问。
-5. 生成评分、薄弱点和改进建议。
-
-### 答辩模拟
-
-1. 上传并解析答辩材料。
-2. 创建答辩会话。
-3. Agent 根据材料进入陈述、提问和追问阶段。
-4. 保存全部问答记录。
-5. 生成答辩评分报告和复习薄弱点。
-
-## 本地启动
-
-当前文件只有框架占位，等 `main.py` 和依赖补充完成后使用以下方式启动：
-
-```bash
-cd backend
+```powershell
 python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 启动开发服务器
-uvicorn app.main:app --reload
+.\.venv\Scripts\python.exe -m pip install -r requirements.lock.txt
+Copy-Item .env.example .env
 ```
 
-启动后默认访问：
+编辑 `.env`，配置 `DEEPSEEK_API_KEY` 和至少32字符的 `JWT_SECRET`，然后：
 
-- 服务地址：`http://127.0.0.1:8000`
-- Swagger 文档：`http://127.0.0.1:8000/docs`
-- ReDoc 文档：`http://127.0.0.1:8000/redoc`
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1
+```
 
-## 配置方式
+没有模型Key时，可以明确使用本地演示模式验证流程：
 
-复制 `.env.example` 为 `.env`，再填写数据库、大模型等配置。密钥、账号和其他敏感信息不要提交到 Git。
+```powershell
+.\start.ps1 -Demo
+```
 
-## 开发顺序
+本地演示的界面与报告会标注“规则演示”，不会声称生成了真实云端AI评价。默认配置始终是 DeepSeek；缺少Key时返回明确错误。模型Key只存在服务端。
 
-1. 完成数据库连接和基础模型。
-2. 完成用户登录、用户画像和简历接口。
-3. 完成面试/答辩会话和消息接口。
-4. 完成 `llm/` 大模型适配。
-5. 完成 `agent/` 状态机和工具调用。
-6. 完成评分报告、薄弱点和记忆功能。
-7. 补充接口测试和完整流程测试。
+| 地址 | 内容 |
+| --- | --- |
+| http://127.0.0.1:8000/ | 面试训练台、流式对话、评分复盘、历史、弱项与记忆 |
+| http://127.0.0.1:8000/docs | 可直接调试的 Swagger 接口文档 |
+| http://127.0.0.1:8000/redoc | ReDoc 阅读版 |
+| http://127.0.0.1:8000/openapi.json | 完整类型定义 |
+| http://127.0.0.1:8000/health | 数据库和模型配置状态 |
 
-## 当前约定
+首次进入界面注册账号即可开始；可通过 `REGISTRATION_ENABLED=false` 关闭自注册。未接入验证码渠道，因此不要求不存在的验证码。
 
-- API 路径暂不增加 `/v1` 前缀，后续需要版本化时统一调整。
-- 语音识别和语音合成由前端完成，后端以文本消息为主。
-- 暂不单独创建 `schemas/`、`core/`、`migrations/` 和 `uploads/`，避免早期目录过度拆分。
-- 文件暂不固定保存到项目目录，后续根据部署方式接入对象存储或临时文件处理。
+## 接入约定
+
+基础路径 `/api/v1`，除注册、登录、刷新令牌外使用 `Authorization: Bearer <accessToken>`。所有JSON成功响应为 `{code,message,data,requestId}`，列表为 `data:{items,nextCursor,hasMore}`。SSE为 `text/event-stream`，支持 `Last-Event-ID` 续传，重新订阅不会重复请求模型。
+
+会话流程：开场 → 自我介绍 → 经历追问 → 情景提问 → 反问 → 复盘。服务端决定推进，经历与情景阶段可对证据不足追加一次追问。会话创建以 Idempotency-Key / clientSessionId 幂等；消息以 clientMessageId 幂等。后台任务独立于订阅运行，报告异步生成并校验评分证据。
+
+语音按仓库原有分工由设备端完成 ASR/TTS。后端接收经用户确认的转写文本，并保留 inputMode=voice 与 modality=voice。Web界面的录音/朗读只在浏览器支持时可用，不替代鸿蒙真机验收。
+
+## 目录与职责
+
+```text
+app/
+  api/          HTTP、鉴权入口、DTO/VO与统一响应
+  services/     账号、画像、简历、会话、消息、报告、弱项、记忆
+  db/           SQLite模型、短事务、外键和唯一索引
+  agent/        阶段状态机、上下文编排、真实工具、评分校验
+  llm/          DeepSeek流适配与显式演示provider
+  parsers/      PDF/Word保守文本提取，缺失资料不虚构
+  web/          无外部CDN的响应式中文联调界面
+tests/          面试端到端、鉴权隔离、幂等、续传和恢复测试
+docs/           中文约定、开发说明与生成的OpenAPI
+scripts/        Schema导出工具
+```
+
+## 测试与文档
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe scripts\export_openapi.py
+```
+
+- [接口文档](docs/接口文档.md)：路径、参数、类型、错误码、SSE与飞书草案修正。
+- [后端开发文档](docs/后端开发文档.md)：分层、队列、模型、存储与客户端接入。
+- [OpenAPI](docs/openapi.json)：由实际路由和Pydantic生成，无悬空引用。
+
+## 当前运行边界
+
+采用单实例SQLite和单个uvicorn worker，最多4个并行后台任务。多进程部署前需要任务租约/共享队列与共享限流器。数据库、原文件及本地随机JWT密钥保存在忽略的 `data/`；`.env` 与密钥不提交。生产环境需配置TLS、独立JWT密钥、备份和服务端数据保留策略。
+
+真实云端端到端验收需要项目方DeepSeek Key；测试使用可注入provider及HTTP协议模拟。扫描件OCR、答辩、鸿蒙真机语音以及ArkUI-X三端安装编译尚未在本次实现中验收。

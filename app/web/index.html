@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f7f4"><title>HonoCareer · 面试训练台</title>
+  <link rel="stylesheet" href="/assets/style.css"><script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="HonoCareer 首页"><span class="brand-icon">h<span>✦</span></span><span>HonoCareer<small>把每一次表达，变成进步。</small></span></a>
+      <div class="nav-caption">我的练习空间</div>
+      <nav aria-label="主导航">
+        <button class="nav-item active" data-page="home"><span>◈</span>面试训练台</button>
+        <button class="nav-item" data-page="history"><span>◷</span>练习记录<span id="history-count" class="count">0</span></button>
+        <button class="nav-item" data-page="weak"><span>◎</span>能力提升</button>
+        <button class="nav-item" data-page="memory"><span>✧</span>个性化记忆</button>
+      </nav>
+      <div class="sidebar-note"><span class="tiny-star">✧</span><strong>准备得更从容一点</strong><p>从自我介绍到临场应变，<br>在练习中找到自己的节奏。</p><a href="/docs" target="_blank" rel="noopener">查看接口文档 ↗</a></div>
+      <button class="account" id="account-button"><span class="avatar" id="avatar">同</span><span id="account-name">登录后开始练习</span><span class="account-arrow">↗</span></button>
+    </aside>
+    <div class="workspace">
+      <header><div class="breadcrumb">我的空间 <span>/</span> <strong id="page-label">面试训练台</strong></div><div class="header-right"><span id="mode-badge" class="status-badge">正在连接服务</span><button class="icon-button" id="refresh-button" title="刷新数据" aria-label="刷新数据">↻</button></div></header>
+      <main id="main" tabindex="-1"></main>
+      <footer>HonoCareer <span>·</span> 每一次练习，都离从容更近一步 <span class="footer-right">面试模拟 / INTERVIEW PRACTICE</span></footer>
+    </div>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <dialog id="auth-dialog" aria-labelledby="auth-title">
+    <form id="auth-form"><div class="eyebrow">WELCOME TO HONOCAREER</div><h2 id="auth-title">欢迎回来</h2><p class="muted">让下一次面试，更有把握。</p>
+      <div class="segmented" id="auth-tabs"><button type="button" data-auth="login" class="selected">登录</button><button type="button" data-auth="register">注册</button></div>
+      <label>账号<input id="auth-account" name="account" autocomplete="username" placeholder="邮箱或自定义账号" minlength="3" maxlength="120" required></label>
+      <label>密码<input id="auth-password" name="password" type="password" autocomplete="current-password" placeholder="至少 8 位字符" maxlength="128" required></label>
+      <label id="nickname-label" hidden>昵称<input id="auth-nickname" maxlength="40" placeholder="我们该怎么称呼你"></label>
+      <p id="auth-error" class="error" role="alert"></p><button class="primary full" type="submit" id="auth-submit">登录并开始练习 →</button>
+      <button type="button" class="text-button full" id="auth-close">先浏览一下</button>
+    </form>
+  </dialog>
+  <dialog id="resume-dialog" aria-labelledby="resume-title"><form id="resume-form"><div class="eyebrow">RESUME REVIEW</div><h2 id="resume-title">确认简历解析结果</h2><p class="muted">请核对后保存。只有确认的内容会进入面试上下文。</p><label>结构化内容<textarea id="resume-content" class="json-editor" spellcheck="false" rows="14"></textarea></label><p class="muted small" id="resume-warning"></p><p class="error" id="resume-error"></p><div class="actions"><button type="button" class="secondary" id="resume-close">稍后处理</button><button class="primary" type="submit">保存并确认</button></div></form></dialog>
+</body></html>
